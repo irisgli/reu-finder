@@ -1,0 +1,113 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>REU Finder (WIP)</title>
+    <style>
+      body { font-family: system-ui, sans-serif; margin: 40px; }
+      label { margin-right: 16px; }
+      li { margin: 6px 0; }
+    </style>
+  </head>
+
+  <body>
+    <h1>REU Finder</h1>
+    <p>filter research programs by eligibility (prototype)</p>
+
+    <!-- filters -->
+    <label>
+      class year:
+      <select id="year">
+        <option value="">any</option>
+        <option value="freshman">freshman</option>
+        <option value="sophomore">sophomore</option>
+        <option value="junior">junior</option>
+      </select>
+    </label>
+
+    <label>
+      citizenship:
+      <select id="citizenship">
+        <option value="">any</option>
+        <option value="us_only">us only</option>
+        <option value="international_ok">international ok</option>
+      </select>
+    </label>
+
+    <label>
+      deadline:
+      <select id="deadline">
+        <option value="">any</option>
+        <option value="30">next 30 days</option>
+        <option value="60">next 60 days</option>
+      </select>
+    </label>
+
+    <hr />
+
+    <!-- results -->
+    <ul id="results"></ul>
+
+    <script>
+      const programs = [
+        {
+          name: "CMU REUSE",
+          years: ["freshman", "sophomore", "junior"],
+          citizenship: "us_only",
+          deadline: "2026-02-02",
+        },
+        {
+          name: "MIT MSRP",
+          years: ["sophomore", "junior"],
+          citizenship: "international_ok",
+          deadline: "2026-01-20",
+        },
+        {
+          name: "DOE SULI",
+          years: ["freshman", "sophomore", "junior"],
+          citizenship: "us_only",
+          deadline: "2026-01-07",
+        },
+      ];
+
+      const yearEl = document.getElementById("year");
+      const citizenEl = document.getElementById("citizenship");
+      const deadlineEl = document.getElementById("deadline");
+      const resultsEl = document.getElementById("results");
+
+      function daysUntil(dateStr) {
+        const today = new Date();
+        const d = new Date(dateStr);
+        return Math.floor((d - today) / (1000 * 60 * 60 * 24));
+      }
+
+      function render() {
+        resultsEl.innerHTML = "";
+
+        const year = yearEl.value;
+        const citizen = citizenEl.value;
+        const window = deadlineEl.value;
+
+        programs
+          .filter(p => !year || p.years.includes(year))
+          .filter(p => !citizen || p.citizenship === citizen)
+          .filter(p => {
+            if (!window) return true;
+            const diff = daysUntil(p.deadline);
+            return diff >= 0 && diff <= Number(window);
+          })
+          .forEach(p => {
+            const li = document.createElement("li");
+            li.textContent = `${p.name} — deadline ${p.deadline}`;
+            resultsEl.appendChild(li);
+          });
+      }
+
+      yearEl.onchange = render;
+      citizenEl.onchange = render;
+      deadlineEl.onchange = render;
+
+      render();
+    </script>
+  </body>
+</html>
